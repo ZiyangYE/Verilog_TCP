@@ -4,9 +4,11 @@
 
 Highly specialized TCP module.\
 Simple and high-performance.\
-No ARP support. No need to worry about uncertain latencies caused by ARP packets.
-Only work as a client.\
+No ARP support. No need to worry about uncertain latencies caused by ARP packets. \
+Only works as a client.\
 Create connection once and only once after power on.\
+No reconnection support.\
+No TCP fast retransmission support.\
 \
 Optional Heartbeat packet support so that the server will not trigger a ARP timeout.\
 Optional jumbo frame support.\
