@@ -7,7 +7,8 @@ Simple and high-performance.\
 No ARP support. No need to worry about uncertain latencies caused by ARP packets. \
 Only works as a client.\
 Create connection once and only once after power on.\
-No reconnection support.\
+~~No reconnection support.~~\
+Reconnect using the RST flag and never send the FIN flag.\
 No TCP fast retransmission support.\
 \
 Optional Heartbeat packet support so that the server will not trigger a ARP timeout.\
@@ -31,7 +32,7 @@ Optional download support. (A ack packet will be sent to server immediately afte
 - **port** \
     the local port of the module \
     default: $12345$
-- **remote_tport** \
+- **remote_port** \
     the remote port of the server \
     default: $23456$
 
@@ -39,9 +40,20 @@ Optional download support. (A ack packet will be sent to server immediately afte
     the interval of resend packet (in clock cycles) \
     default: $1000000$ (1M)
 
+- **recon_interval** \
+    ~~when in the initial state, the interval of reconnect (in clock cycles)~~ \
+    ~~-- Note: when connection is established, no reconnect will be triggered, unless phy_ready is reset -- ~~ \
+    the interval of reconnect (in clock cycles) \
+    when no ACK is received after the recon interval, the module will send a RST and reconnect \
+    default: $100000000$ (100M)
+
 - **tx_buf_size** \
     the size of send buffer (in bytes) \
     default: $16384$
+
+- **frame_buf_size** \
+    how many frames can be stored in the buffer \
+    default: $128$
 
 - **HB** \
     enable heartbeat packet \
@@ -71,25 +83,33 @@ Optional download support. (A ack packet will be sent to server immediately afte
 in clk 
 in rst_n 
 
-in tx_data 64bits 
+in phy_ready
+out con_ready
+
+in tx_data 64bits left aligned
 in tx_valid 
 in tx_cnt 3bits 0 = 1byte, 7 = 8bytes
 out tx_ready
 
-out rx_data 64bits
+out rx_data 64bits left aligned
 out rx_valid
 out rx_cnt 3bits 0 = 1byte, 7 = 8bytes
 in rx_ready
 
-out tx_net_data 64bits
+out tx_net_data 64bits left aligned
 out tx_net_valid
 out tx_net_cnt 3bits 0 = 1byte, 7 = 8bytes
 in tx_net_ready
 out tx_net_fin
 
-in rx_net_data 64bits
+in rx_net_data 64bits left aligned
 in rx_net_valid
 in rx_net_cnt 3bits 0 = 1byte, 7 = 8bytes
 out rx_net_ready
 in rx_net_fin
 ```
+
+## Notes
+
+- tx_data less than 8byte will cut the frame into two
+  
