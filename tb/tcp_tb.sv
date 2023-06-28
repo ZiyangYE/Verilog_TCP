@@ -1,60 +1,13 @@
 `timescale 1ns/1ns 
 
-/*
-module udp
-#(
-    parameter bit [31:0] ip = {8'd192, 8'd168, 8'd2, 8'd240},
-    parameter bit [31:0] remote_ip = {8'd192, 8'd168, 8'd2, 8'd241},
-
-    parameter bit [47:0] mac = {8'h06, 8'h00, 8'hAA, 8'hBB, 8'hCC, 8'hDD},
-    parameter bit [47:0] remote_mac = {8'h06, 8'h00, 8'hAA, 8'hBB, 8'hCC, 8'hDE},
-
-    parameter bit [15:0] port = 12345,
-    parameter bit [15:0] remote_port = 23456,
-
-    parameter bit [31:0] resend_interval = 1000000,
-    parameter bit [31:0] recon_interval = 100000000,
-
-    parameter bit [31:0] tx_buf_size = 16384,
-
-    parameter bit HB = 1,
-    parameter bit [31:0] HB_interval = 100000000,
-
-    parameter bit jumbo = 0,
-
-    parameter bit download = 0,
-
-    parameter bit [31:0] rx_buf_size = 1024
-)(
-    input clk,
-    input rst_n,
-
-    input phy_ready,
-    output logic con_ready,
-
-    input [63:0] tx_data,
-    input tx_valid,
-    output logic tx_ready,
-    input [2:0] tx_cnt,
-
-    output [63:0] rx_data,
-    output logic rx_valid,
-    input rx_ready,
-    output [2:0] rx_cnt,
-
-    output [63:0] tx_net_data,
-    output logic tx_net_valid,
-    input tx_net_ready,
-    output [2:0] tx_net_cnt,
-    output tx_net_fin,
-
-    input [63:0] rx_net_data,
-    input rx_net_valid,
-    input [2:0] rx_net_cnt,
-    output logic rx_net_ready,
-    input rx_net_fin
+interface rmii(
+    input clk50m, rx_crs,
+    output mdc, txen,
+    inout mdio,
+    output [1:0] txd,
+    input [1:0] rxd
 );
-*/
+endinterface //rmii
 
 module tcp_tb;
 
@@ -120,9 +73,13 @@ end
 
 initial begin
 
-    tcp_inst.tcp_packet_generator.sequence_number = 32'd0;
-    tcp_inst.tcp_packet_generator.acknowledgement_number = 32'd0;
-    tcp_inst.tcp_packet_generator.ipv4_identification = 16'd0;
+    force tcp_inst.tcp_packet_generator.sequence_number = 32'd0;
+    force tcp_inst.tcp_packet_generator.acknowledgement_number = 32'd0;
+    force tcp_inst.tcp_packet_generator.ipv4_identification = 16'd0;
+
+    release tcp_inst.tcp_packet_generator.sequence_number;
+    release tcp_inst.tcp_packet_generator.acknowledgement_number;
+    release tcp_inst.tcp_packet_generator.ipv4_identification;
 end
 
 tcp #(
@@ -166,14 +123,6 @@ tcp #(
     .rx_net_fin(rx_net_fin)
 );
 
-interface rmii(
-    input clk50m, rx_crs,
-    output mdc, txen,
-    inout mdio,
-    output [1:0] txd,
-    input [1:0] rxd
-);
-endinterface //rmii
 
 logic clk50m;
 logic rx_crs;

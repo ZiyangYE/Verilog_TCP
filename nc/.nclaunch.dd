@@ -1,0 +1,44 @@
+# DO NOT EDIT -- automatically generated design data file -- DO NOT EDIT!!!
+list \
+workdir {/mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc} \
+cdslib {/mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/cds.lib} \
+worklib {worklib} \
+mode {0} \
+filters {*} \
+sesslist {} \
+ToolOption_NCVhdl {-logfile ncvhdl.log -errormax 15 -update -linedebug -status} \
+ToolOption_NCVlog { -work worklib -cdslib /mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/cds.lib -logfile ncvlog.log -errormax 15 -update -linedebug -status -sv} \
+ToolOption_NCVlog/AMS { -work worklib -cdslib /mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/cds.lib -logfile ncvlog.log -errormax 15 -update -linedebug -status -sv} \
+ToolOption_NCVlog/SV { -work worklib -cdslib /mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/cds.lib -logfile ncvlog.log -errormax 15 -update -linedebug -status -sv} \
+ToolOption_irun {-gui {} +linedebug +access rwc -q} \
+ToolOption_NCElab { -work worklib -cdslib /mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/cds.lib -logfile ncelab.log -errormax 15 -access +wc -status} \
+ToolOption_NCSim {-gui -logfile ncsim.log -errormax 15 -status} \
+ToolOption_NCSdfc {-logfile ncsdfc.log -compile -status} \
+ToolOption_HAL {-logfile hal.log} \
+ToolOption_SimVision {} \
+ToolOption_Update {-errormax 15 -force} \
+ToolOption_SimCompare {} \
+ToolOption_NCBrowse {} \
+ToolOption_HALDefEdit {} \
+ToolOption_NCShell {-view shell -logfile ncshell.log -errormax 15 -suffix .v} \
+ToolOption_NCProtect {-logfile ncprotect.log} \
+ToolOption_NCDC {-logfile ncdc.log -messages -status} \
+ToolOption_DBUtil {} \
+ToolOption_NCVhdl {-logfile ncvhdl.log -errormax 15 -update -linedebug -status} \
+ToolOption_NCVlog { -work worklib -cdslib /mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/cds.lib -logfile ncvlog.log -errormax 15 -update -linedebug -status -sv} \
+ToolOption_NCVlog/AMS { -work worklib -cdslib /mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/cds.lib -logfile ncvlog.log -errormax 15 -update -linedebug -status -sv} \
+ToolOption_NCVlog/SV { -work worklib -cdslib /mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/cds.lib -logfile ncvlog.log -errormax 15 -update -linedebug -status -sv} \
+ToolOption_irun {-gui {} +linedebug +access rwc -q} \
+ToolOption_NCElab { -work worklib -cdslib /mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/cds.lib -logfile ncelab.log -errormax 15 -access +wc -status} \
+ToolOption_NCSim {-gui -logfile ncsim.log -errormax 15 -status} \
+ToolOption_NCSdfc {-logfile ncsdfc.log -compile -status} \
+ToolOption_HAL {-logfile hal.log} \
+ToolOption_SimVision {} \
+ToolOption_Update {-errormax 15 -force} \
+ToolOption_SimCompare {} \
+ToolOption_NCBrowse {} \
+ToolOption_HALDefEdit {} \
+ToolOption_NCShell {-view shell -logfile ncshell.log -errormax 15 -suffix .v} \
+ToolOption_NCProtect {-logfile ncprotect.log} \
+ToolOption_NCDC {-logfile ncdc.log -messages -status} \
+ToolOption_DBUtil {} \

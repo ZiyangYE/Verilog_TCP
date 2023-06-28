@@ -1,0 +1,9 @@
+ncelab(64): 15.20-s086: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+rmii rmii_local (
+              |
+ncelab: *W,CUVWSB (../tb/tcp_tb.sv,135|14): 1 inout port was not connected:
+ncelab: (../tb/tcp_tb.sv,6): mdio
+
+ncelab: *W,DSEMEL: This SystemVerilog design will be simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
+ncelab: Memory Usage - 49.9M program + 33.0M data = 82.9M total (Peak 87.6M)
+ncelab: CPU Usage - 0.1s system + 0.1s user = 0.2s total (0.3s, 68.3% cpu)

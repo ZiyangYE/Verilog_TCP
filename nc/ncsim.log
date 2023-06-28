@@ -1,0 +1,20 @@
+ncsim(64): 15.20-s086: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+ncsim: *W,DSEM2009: This SystemVerilog design is simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
+
+-------------------------------------
+Relinquished control to SimVision...
+ncsim> 
+ncsim> run 1us
+Ran until 1 US + 0
+ncsim> database -open waves -into waves.shm -default
+Created default SHM database waves
+ncsim> probe -create -shm tcp_tb.clk tcp_tb.clk50m tcp_tb.con_ready tcp_tb.mdc tcp_tb.mdio tcp_tb.phy_ready tcp_tb.rst_n tcp_tb.rx_cnt tcp_tb.rx_crs tcp_tb.rx_data tcp_tb.rx_net_cnt tcp_tb.rx_net_data tcp_tb.rx_net_fin tcp_tb.rx_net_ready tcp_tb.rx_net_valid tcp_tb.rx_ready tcp_tb.rx_valid tcp_tb.rxd tcp_tb.tx_cnt tcp_tb.tx_data tcp_tb.tx_net_cnt tcp_tb.tx_net_data tcp_tb.tx_net_fin tcp_tb.tx_net_ready tcp_tb.tx_net_valid tcp_tb.tx_ready tcp_tb.tx_valid tcp_tb.txd tcp_tb.txen
+Created probe 1
+ncsim> reset
+ncsim: *W,DSEM2009: This SystemVerilog design is simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
+Loaded snapshot worklib.tcp_tb:module
+ncsim> run 1us
+Ran until 1 US + 0
+ncsim> run 1us
+Ran until 2 US + 0
+ncsim> 

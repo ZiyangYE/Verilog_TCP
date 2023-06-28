@@ -1,28 +1,30 @@
+`timescale 1ns/1ns 
+
 module tcp
 #(
-    parameter bit [31:0] ip = {8'd192, 8'd168, 8'd2, 8'd240},
-    parameter bit [31:0] remote_ip = {8'd192, 8'd168, 8'd2, 8'd241},
+    parameter [31:0] ip = {8'd192, 8'd168, 8'd2, 8'd240},
+    parameter [31:0] remote_ip = {8'd192, 8'd168, 8'd2, 8'd241},
 
-    parameter bit [47:0] mac = {8'h06, 8'h00, 8'hAA, 8'hBB, 8'hCC, 8'hDD},
-    parameter bit [47:0] remote_mac = {8'h06, 8'h00, 8'hAA, 8'hBB, 8'hCC, 8'hDE},
+    parameter [47:0] mac = {8'h06, 8'h00, 8'hAA, 8'hBB, 8'hCC, 8'hDD},
+    parameter [47:0] remote_mac = {8'h06, 8'h00, 8'hAA, 8'hBB, 8'hCC, 8'hDE},
 
-    parameter bit [15:0] port = 12345,
-    parameter bit [15:0] remote_port = 23456,
+    parameter [15:0] port = 12345,
+    parameter [15:0] remote_port = 23456,
 
-    parameter bit [31:0] resend_interval = 1000000,
-    parameter bit [31:0] recon_interval = 100000000,
+    parameter [31:0] resend_interval = 1000000,
+    parameter [31:0] recon_interval = 100000000,
 
-    parameter bit [31:0] tx_buf_size = 16384,
-    parameter bit [31:0] frame_buf_size = 128,
+    parameter [31:0] tx_buf_size = 16384,
+    parameter [31:0] frame_buf_size = 128,
 
-    parameter bit HB = 1,
-    parameter bit [31:0] HB_interval = 100000000,
+    parameter HB = 1,
+    parameter [31:0] HB_interval = 100000000,
 
-    parameter bit jumbo = 0,
+    parameter jumbo = 0,
 
-    parameter bit download = 0,
+    parameter download = 0,
 
-    parameter bit [31:0] rx_buf_size = 1024
+    parameter [31:0] rx_buf_size = 1024
 )(
     input clk,
     input rst_n,
@@ -99,10 +101,10 @@ tcp_packet_generator #(
 endmodule
 
 module tcp_input_control #(
-    parameter bit [31:0] ip, parameter bit [31:0] remote_ip, parameter bit [47:0] mac, parameter bit [47:0] remote_mac,
-    parameter bit [15:0] port, parameter bit [15:0] remote_port, parameter bit [31:0] resend_interval, parameter bit [31:0] recon_interval,
-    parameter bit [31:0] tx_buf_size, parameter bit [31:0] frame_buf_size, parameter bit HB, parameter bit [31:0] HB_interval,
-    parameter bit jumbo, parameter bit download, parameter bit [31:0] rx_buf_size
+    parameter [31:0] ip=0, parameter [31:0] remote_ip=0, parameter [47:0] mac=0, parameter [47:0] remote_mac=0,
+    parameter [15:0] port=0, parameter [15:0] remote_port=0, parameter [31:0] resend_interval=0, parameter [31:0] recon_interval=0,
+    parameter [31:0] tx_buf_size=0, parameter [31:0] frame_buf_size=0, parameter HB=0, parameter [31:0] HB_interval=0,
+    parameter jumbo=0, parameter download=0, parameter [31:0] rx_buf_size = 0
 )(
     input clk,
     input rst_n,
@@ -224,10 +226,10 @@ endmodule
 
 
 module tx_control #(
-    parameter bit [31:0] ip, parameter bit [31:0] remote_ip, parameter bit [47:0] mac, parameter bit [47:0] remote_mac,
-    parameter bit [15:0] port, parameter bit [15:0] remote_port, parameter bit [31:0] resend_interval, parameter bit [31:0] recon_interval,
-    parameter bit [31:0] tx_buf_size, parameter bit [31:0] frame_buf_size, parameter bit HB, parameter bit [31:0] HB_interval,
-    parameter bit jumbo, parameter bit download, parameter bit [31:0] rx_buf_size
+    parameter [31:0] ip=0, parameter [31:0] remote_ip=0, parameter [47:0] mac=0, parameter [47:0] remote_mac=0,
+    parameter [15:0] port=0, parameter [15:0] remote_port=0, parameter [31:0] resend_interval=0, parameter [31:0] recon_interval=0,
+    parameter [31:0] tx_buf_size=0, parameter [31:0] frame_buf_size=0, parameter HB=0, parameter [31:0] HB_interval=0,
+    parameter jumbo=0, parameter download=0, parameter [31:0] rx_buf_size = 0
 )(
     input clk,
     input rst_n,
@@ -294,10 +296,10 @@ endmodule
 
 
 module tcp_packet_generator #(
-    parameter bit [31:0] ip, parameter bit [31:0] remote_ip, parameter bit [47:0] mac, parameter bit [47:0] remote_mac,
-    parameter bit [15:0] port, parameter bit [15:0] remote_port, parameter bit [31:0] resend_interval, parameter bit [31:0] recon_interval,
-    parameter bit [31:0] tx_buf_size, parameter bit [31:0] frame_buf_size, parameter bit HB, parameter bit [31:0] HB_interval,
-    parameter bit jumbo, parameter bit download, parameter bit [31:0] rx_buf_size
+    parameter [31:0] ip=0, parameter [31:0] remote_ip=0, parameter [47:0] mac=0, parameter [47:0] remote_mac=0,
+    parameter [15:0] port=0, parameter [15:0] remote_port=0, parameter [31:0] resend_interval=0, parameter [31:0] recon_interval=0,
+    parameter [31:0] tx_buf_size=0, parameter [31:0] frame_buf_size=0, parameter HB=0, parameter [31:0] HB_interval=0,
+    parameter jumbo=0, parameter download=0, parameter [31:0] rx_buf_size=0
 )(
     input clk,
     input rst_n,

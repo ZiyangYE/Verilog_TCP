@@ -1,25 +1,73 @@
-//Note: This module is used to verify the output data format is correct or not.
-//This is not used for any other purpose.
+//----------------------------------------------------------------------
+//   Licensed under the Apache License, Version 2.0 (the
+//   "License"); you may not use this file except in
+//   compliance with the License.  You may obtain a copy of
+//   the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in
+//   writing, software distributed under the License is
+//   distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+//   CONDITIONS OF ANY KIND, either express or implied.  See
+//   the License for the specific language governing
+//   permissions and limitations under the License.
+//----------------------------------------------------------------------
+//----------------------------------------------------------------------
+// Author          : LAKKA
+// Mail            : Ja_P_S@outlook.com
+// File            : udp.sv
+//----------------------------------------------------------------------
+// Creation Date   : 06.05.2023
+//----------------------------------------------------------------------
+//
 
-module mac_decoder(
-    input clk,
-    input rst_n,
+`include "rmii.svh"
 
-    input rx_en,
-    input [1:0] rmii_rx
+module udp
+#(
+    parameter bit [31:0] ip_adr = 32'd0,
+    parameter bit [47:0] mac_adr = 48'd0
+)(
+
+    output logic clk50m,
+    output logic ready,
+
+    rmii netrmii,
+
+    output logic phyrst,
+
+    output logic [31:0] rx_head_o,
+    output logic rx_head_av_o,
+    output logic [7:0] rx_data_o,
+    output logic rx_data_av_o,
+    input logic rx_head_rdy_i,
+    input logic rx_data_rdy_i,
+
+    input logic [31:0] tx_ip_i,
+    input logic [15:0] tx_src_port_i,
+    input logic [15:0] tx_dst_port_i,
+    input logic tx_req_i,
+    input logic [7:0] tx_data_i,
+    input logic tx_data_av_i,
+
+    output logic tx_req_rdy_o,
+    output logic tx_data_rdy_o
 );
 
+assign phyrst = rphyrst;
 
+assign clk50m = netrmii.clk50m;
 
 byte rx_state;
 
 byte cnt;
 logic[7:0] rx_data_s;
 
-logic crs = rx_en;
-logic[1:0] rxd = rmii_rx;
-logic phy_rdy = rst_n;
-logic clk50m = clk;
+logic crs;
+assign crs = netrmii.rx_crs;
+logic[1:0] rxd;
+assign rxd = netrmii.rxd;
 
 byte rx_cnt;
 byte tick;
@@ -465,4 +513,5 @@ end
 
 
 endmodule
+
 
