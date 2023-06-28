@@ -61,109 +61,184 @@ always_ff @(posedge clk or negedge rst_n) begin
     end    
 end
 
-/* Input data control
+
+tcp_input_control #(
+    .ip(ip), .remote_ip(remote_ip), .mac(mac), .remote_mac(remote_mac), .port(port), .remote_port(remote_port),
+    .resend_interval(resend_interval), .recon_interval(recon_interval), .tx_buf_size(tx_buf_size), .frame_buf_size(frame_buf_size),
+    .HB(HB), .HB_interval(HB_interval), .jumbo(jumbo), .download(download), .rx_buf_size(rx_buf_size)
+) tcp_input_control (
+    .clk(clk), .rst_n(rst_n), .tx_data(tx_data), .tx_valid(tx_valid), .tx_ready(tx_ready), .tx_cnt(tx_cnt)
+);
 
 
-*/
+shortint tx_payload_size;
+logic [11:0] tx_flag;
+logic tx_trg;
+logic tx_ack;
 
-logic [63:0] tx_data_fifo [tx_buf_size/8-1:0];
-logic [47:0] tx_frame_fifo [frame_buf_size-1:0]
+tx_control #(
+    .ip(ip), .remote_ip(remote_ip), .mac(mac), .remote_mac(remote_mac), .port(port), .remote_port(remote_port),
+    .resend_interval(resend_interval), .recon_interval(recon_interval), .tx_buf_size(tx_buf_size), .frame_buf_size(frame_buf_size),
+    .HB(HB), .HB_interval(HB_interval), .jumbo(jumbo), .download(download), .rx_buf_size(rx_buf_size)
+) tx_control (
+    .clk(clk), .rst_n(rst_n), .tx_payload_size(tx_payload_size), .tx_flag(tx_flag), .tx_trg(tx_trg),
+    .tx_ack(tx_ack), .con_ready(con_ready), .phy_ready(phy_ready)
+);
 
 
-logic [63:0] tx_data_fifo_out;
-logic [63:0] tx_data_fifo_in;
-int tx_data_fifo_in_ptr;
 
-logic tx_data_fifo_wr;
-logic tx_data_fifo_rd;
+tcp_packet_generator #(
+    .ip(ip), .remote_ip(remote_ip), .mac(mac), .remote_mac(remote_mac), .port(port), .remote_port(remote_port),
+    .resend_interval(resend_interval), .recon_interval(recon_interval), .tx_buf_size(tx_buf_size), .frame_buf_size(frame_buf_size),
+    .HB(HB), .HB_interval(HB_interval), .jumbo(jumbo), .download(download), .rx_buf_size(rx_buf_size)
+) tcp_packet_generator (
+    .clk(clk), .rst_n(rst_n), .tx_trg(tx_trg), .tx_ack(tx_ack), .tx_payload_size(tx_payload_size), .tx_flag(tx_flag),
+    .tx_net_data(tx_net_data), .tx_net_valid(tx_net_valid), .tx_net_ready(tx_net_ready), .tx_net_cnt(tx_net_cnt), .tx_net_fin(tx_net_fin)
+);
 
-logic tx_data_fifo_valid;
-logic tx_data_fifo_ready;
+endmodule
 
-int tx_fifo_write_ptr;
-int tx_fifo_final_ptr;
-//remain space is (tx_fifo_size + tx_fifo_final_ptr - tx_fifo_write_ptr)%tx_fifo_size
-int tx_fifo_read_ptr;
+module tcp_input_control #(
+    parameter bit [31:0] ip, parameter bit [31:0] remote_ip, parameter bit [47:0] mac, parameter bit [47:0] remote_mac,
+    parameter bit [15:0] port, parameter bit [15:0] remote_port, parameter bit [31:0] resend_interval, parameter bit [31:0] recon_interval,
+    parameter bit [31:0] tx_buf_size, parameter bit [31:0] frame_buf_size, parameter bit HB, parameter bit [31:0] HB_interval,
+    parameter bit jumbo, parameter bit download, parameter bit [31:0] rx_buf_size
+)(
+    input clk,
+    input rst_n,
 
-//写入逻辑开始
-//写入的数据暂存在这个reg里，并且写入fifo，在凑满8个之后，fifo才进位
-logic [63:0] tx_fifo_input_interface;
-byte tx_fifo_input_interface_cnt;
+    input [63:0] tx_data,
+    input tx_valid,
+    output logic tx_ready,
+    input [2:0] tx_cnt
+);
 
-logic local_tx_valid = tx_valid && tx_ready;
+logic [63:0] tx_data_mem [tx_buf_size/8-1:0];
+//16 bit begin address, 16 bit length, 32 bit sum
+logic [63:0] tx_frame_mem [frame_buf_size-1:0];
 
-logic [63:0] tx_fifo_input_shift;
-logic [63:0] tx_fifo_interface_shift;
+logic [63:0] tx_data_mem_out;
+logic [63:0] tx_data_mem_in;
+
+logic [63:0] tx_frame_mem_out;
+logic [63:0] tx_frame_mem_in;
+
+int tx_data_mem_in_ptr;
+int tx_frame_mem_in_ptr;
+
+logic tx_data_mem_wr;
+logic tx_frame_mem_wr;
+
+logic tx_data_mem_not_full;
+logic tx_frame_mem_not_full;
+
+int tx_data_mem_write_ptr;
+int tx_data_mem_final_ptr;
+//remain space is (size + final_ptr - write_ptr)%size
+int tx_data_mem_read_ptr;
+
+int tx_frame_mem_write_ptr;
+int tx_frame_mem_final_ptr;
+int tx_frame_mem_read_ptr;
+
+int tx_data_mem_remain;
+int tx_frame_mem_remain;
+
+logic [31:0] tx_input_summer;
+
+logic local_tx_valid;
 
 always_comb begin
-    case(tx_fifo_input_interface_cnt)
-    1:begin
-        tx_fifo_input_shift = {tx_fifo_input_interface[63:56], tx_data[63:8]};
-        tx_fifo_interface_shift = {tx_data[7:0], 56'hXXXXXXXXXXXXXX};
-    end
-    2:begin
-        tx_fifo_input_shift = {tx_fifo_input_interface[63:48], tx_data[63:16]};
-        tx_fifo_interface_shift = {tx_data[15:0], 48'hXXXXXXXXXXXX};
-    end
-    3:begin
-        tx_fifo_input_shift = {tx_fifo_input_interface[63:40], tx_data[63:24]};
-        tx_fifo_interface_shift = {tx_data[23:0], 40'hXXXXXXXXXX};
-    end
-    4:begin
-        tx_fifo_input_shift = {tx_fifo_input_interface[63:32], tx_data[63:32]};
-        tx_fifo_interface_shift = {tx_data[31:0], 32'hXXXXXXXX};
-    end
-    5:begin
-        tx_fifo_input_shift = {tx_fifo_input_interface[63:24], tx_data[63:40]};
-        tx_fifo_interface_shift = {tx_data[39:0], 24'hXXXXXX};
-    end
-    6:begin
-        tx_fifo_input_shift = {tx_fifo_input_interface[63:16], tx_data[63:48]};
-        tx_fifo_interface_shift = {tx_data[47:0], 16'hXXXX};
-    end
-    7:begin
-        tx_fifo_input_shift = {tx_fifo_input_interface[63:8], tx_data[63:56]};
-        tx_fifo_interface_shift = {tx_data[55:0], 8'hXX};
-    end
-    default:begin
-        tx_fifo_input_shift = tx_data;
-        tx_fifo_interface_shift = tx_data;
-    end
+    tx_data_mem_remain = (tx_buf_size/8 + tx_data_mem_final_ptr - tx_data_mem_write_ptr - 1)%(tx_buf_size/8);
+    tx_frame_mem_remain = (frame_buf_size + tx_frame_mem_final_ptr - tx_frame_mem_write_ptr - 1)%frame_buf_size;
 
-    endcase
+    tx_data_mem_not_full = tx_data_mem_remain > 8 || ((tx_data_mem_remain > (jumbo?1200:200))&& (!tx_valid || tx_cnt != 7));
+    tx_frame_mem_not_full = tx_frame_mem_remain > 2;
+
+    tx_ready = tx_data_mem_not_full && tx_frame_mem_not_full;
+    local_tx_valid = tx_valid && tx_ready;
 end
+
+shortint tx_length_cnt;
+shortint begin_write_ptr;
 
 always_ff@(posedge clk or negedge rst_n) begin
     if(!rst_n)begin
-        tx_fifo_input_interface_cnt <= 0;
-        tx_fifo_write_ptr <= 0;
+        tx_data_mem_wr <= 0;
+        tx_frame_mem_wr <= 0;
+
+        tx_data_mem_write_ptr <= 0;
+        tx_frame_mem_write_ptr <= 0;
+        tx_input_summer <= 0;
+        tx_length_cnt <= 0;
+        begin_write_ptr <= 0;
     end else begin
-        tx_data_fifo_wr <= 1;
-        tx_data_fifo_in <= tx_fifo_input_shift;
-        tx_data_fifo_in_ptr <= tx_fifo_write_ptr >> 3;
+        tx_data_mem_wr <= 0;
+        tx_frame_mem_wr <= 0;
+
         if(local_tx_valid)begin
-            tx_fifo_write_ptr <= (tx_fifo_write_ptr + tx_cnt + 1)%tx_buf_size;
+            if(tx_length_cnt == 0)begin_write_ptr <= tx_data_mem_write_ptr;
 
-            tx_fifo_input_interface_cnt <= (tx_fifo_input_interface_cnt + tx_cnt + 1 - 8)%8;
+            tx_data_mem_wr <= 1;
+            tx_data_mem_in <= tx_data;
+            tx_data_mem_in_ptr <= tx_data_mem_write_ptr;
+            tx_data_mem_write_ptr <= tx_data_mem_write_ptr + 1;
 
-            if(tx_fifo_input_interface_cnt + tx_cnt + 1 > 8)begin
-                tx_fifo_input_interface <= tx_fifo_interface_shift;
-            end else begin
-                tx_fifo_input_interface <= tx_fifo_input_shift;
+            tx_input_summer <= tx_input_summer + tx_data[63:48] + tx_data[47:32] + tx_data[31:16] + tx_data[15:0];
+            tx_length_cnt <= tx_length_cnt + 8;
+
+            //finish a frame
+            if(tx_cnt != 7 || (!jumbo && tx_length_cnt >= 1448 - 8) || (jumbo && tx_length_cnt >= 8960 - 8))begin
+                tx_frame_mem_in <= {begin_write_ptr, tx_length_cnt + tx_cnt + 1, 
+                    tx_input_summer + tx_data[63:48] + tx_data[47:32] + tx_data[31:16] + tx_data[15:0]};
+                tx_frame_mem_in_ptr <= tx_frame_mem_write_ptr;
+                tx_frame_mem_wr <= 1;
+                tx_frame_mem_write_ptr <= tx_frame_mem_write_ptr + 1;
+
+                tx_input_summer <= 0;
+                tx_length_cnt <= 0;
+            end
+        end else begin
+            if(tx_length_cnt != 0)begin
+                tx_frame_mem_in <= {begin_write_ptr, tx_length_cnt, tx_input_summer};
+                tx_frame_mem_in_ptr <= tx_frame_mem_write_ptr;
+                tx_frame_mem_wr <= 1;
+                tx_frame_mem_write_ptr <= tx_frame_mem_write_ptr + 1;
+
+                tx_input_summer <= 0;
+                tx_length_cnt <= 0;
             end
         end
     end
 end
 
 always_ff@(posedge clk)begin
-    if(tx_data_fifo_wr)begin
-        tx_data_fifo[tx_data_fifo_in_ptr] <= tx_data_fifo_in;
-    end
+    if(tx_data_mem_wr)tx_data_mem[tx_data_mem_in_ptr] <= tx_data_mem_in;
+    if(tx_frame_mem_wr)tx_frame_mem[tx_frame_mem_in_ptr] <= tx_frame_mem_in;
+
+    tx_data_mem_out <= tx_data_mem[tx_data_mem_read_ptr];
+    tx_frame_mem_out <= tx_frame_mem[tx_frame_mem_read_ptr];
 end
 
-always_comb begin
-    tx_data_fifo_out <= tx_data_fifo[tx_fifo_read_ptr];
-end
+endmodule
+
+
+module tx_control #(
+    parameter bit [31:0] ip, parameter bit [31:0] remote_ip, parameter bit [47:0] mac, parameter bit [47:0] remote_mac,
+    parameter bit [15:0] port, parameter bit [15:0] remote_port, parameter bit [31:0] resend_interval, parameter bit [31:0] recon_interval,
+    parameter bit [31:0] tx_buf_size, parameter bit [31:0] frame_buf_size, parameter bit HB, parameter bit [31:0] HB_interval,
+    parameter bit jumbo, parameter bit download, parameter bit [31:0] rx_buf_size
+)(
+    input clk,
+    input rst_n,
+
+    output shortint tx_payload_size,
+    output logic [11:0] tx_flag,
+    output logic tx_trg,
+    input tx_ack,
+    input con_ready,
+    input phy_ready
+);
 
 /* TX Control
 
@@ -171,13 +246,8 @@ end
 If phy_ready but connection_state is not 1, then send RST and SYN packet
 
 */
-shortint tx_payload_size;
-logic [11:0] tx_flag;
-logic tx_trg;
-logic tx_ack;
 
 int recon_cnt;
-
 byte con_sta;
 
 always_ff @(posedge clk or negedge rst_n) begin
@@ -218,10 +288,34 @@ always_ff @(posedge clk or negedge rst_n) begin
     end            
 end
 
+endmodule
 
 
 
 
+module tcp_packet_generator #(
+    parameter bit [31:0] ip, parameter bit [31:0] remote_ip, parameter bit [47:0] mac, parameter bit [47:0] remote_mac,
+    parameter bit [15:0] port, parameter bit [15:0] remote_port, parameter bit [31:0] resend_interval, parameter bit [31:0] recon_interval,
+    parameter bit [31:0] tx_buf_size, parameter bit [31:0] frame_buf_size, parameter bit HB, parameter bit [31:0] HB_interval,
+    parameter bit jumbo, parameter bit download, parameter bit [31:0] rx_buf_size
+)(
+    input clk,
+    input rst_n,
+
+    input tx_trg,
+    output logic tx_ack,
+
+    input shortint tx_payload_size,
+    input logic [11:0] tx_flag,
+
+    output logic [63:0] tx_net_data,
+    output logic tx_net_valid,
+    input tx_net_ready,
+    output logic [2:0] tx_net_cnt,
+    output logic tx_net_fin
+
+
+);
 
 /* TX packet generator
 
@@ -253,17 +347,51 @@ logic [11:0] tx_packet_local_tx_flag;
 // the undetermined value is only id and length
 
 //it's determined
-logic [19:0] pre_tcp_head_checksum_step0 = 16'h4500 + 16'h4000 + 16'h8006 + ip[31:16] + ip[15:0] + remote_ip[31:16] + remote_ip[15:0] + 16'h0028;
+logic [19:0] pre_tcp_head_checksum_step0 = 16'h4500 + 16'h4000 + 16'h4006 + ip[31:16] + ip[15:0] + remote_ip[31:16] + remote_ip[15:0] + 16'h0028;
 logic [19:0] pre_tcp_head_checksum_step1 = pre_tcp_head_checksum_step0[15:0] + pre_tcp_head_checksum_step0[19:16];
 logic [15:0] pre_tcp_head_checksum_step2 = pre_tcp_head_checksum_step1[15:0] + pre_tcp_head_checksum_step1[19:16];
 
-logic [19:0] tcp_head_checksum_step0 = pre_tcp_head_checksum_step2 + ipv4_identification + tx_packet_local_tx_payload_size;
-logic [19:0] tcp_head_checksum_step1 = tcp_head_checksum_step0[15:0] + tcp_head_checksum_step0[19:16];
-logic [15:0] tcp_head_checksum_step2 = tcp_head_checksum_step1[15:0] + tcp_head_checksum_step1[19:16];
+logic [19:0] tcp_head_checksum_step0;
+logic [19:0] tcp_head_checksum_step1;
+logic [15:0] tcp_head_checksum_step2;
 
-logic [15:0] tcp_head_checksum = ~tcp_head_checksum_step2;
+logic [15:0] tcp_head_checksum;
 
-//For tcp head, the 
+logic [15:0] local_tcp_head_checksum;
+
+always_comb begin
+    tcp_head_checksum_step0 = pre_tcp_head_checksum_step2 + ipv4_identification + tx_packet_local_tx_payload_size;
+    tcp_head_checksum_step1 = tcp_head_checksum_step0[15:0] + tcp_head_checksum_step0[19:16];
+    tcp_head_checksum_step2 = tcp_head_checksum_step1[15:0] + tcp_head_checksum_step1[19:16];
+
+    tcp_head_checksum = ~tcp_head_checksum_step2;
+end
+
+//For tcp head, the calculation is different from ip head
+// the undetermined value is 
+// sequence number, acknowledgement number, flags, window, data, part of length, header len
+logic [19:0] pre_tcp_checksum_step0 = port + remote_port + ip[31:16] + ip[15:0] + remote_ip[31:16] + remote_ip[15:0] + 16'h0006 + 16'h0014 + 16'h5000;
+logic [19:0] pre_tcp_checksum_step1 = pre_tcp_checksum_step0[15:0] + pre_tcp_checksum_step0[19:16];
+logic [15:0] pre_tcp_checksum_step2 = pre_tcp_checksum_step1[15:0] + pre_tcp_checksum_step1[19:16];
+
+logic [19:0] tcp_checksum_step0;
+logic [19:0] tcp_checksum_step1;
+logic [15:0] tcp_checksum_step2;
+
+logic [15:0] tcp_checksum;
+
+logic [15:0] local_tcp_checksum;
+
+always_comb begin
+    //TBD window size
+    //TBD data checksum
+    tcp_checksum_step0 = pre_tcp_checksum_step2 + sequence_number[31:16] + sequence_number[15:0] + acknowledgement_number[31:16] + acknowledgement_number[15:0] + tx_packet_local_tx_flag + tx_packet_local_tx_payload_size + 16'h0200 + 16'h0000;
+    tcp_checksum_step1 = tcp_checksum_step0[15:0] + tcp_checksum_step0[19:16];
+    tcp_checksum_step2 = tcp_checksum_step1[15:0] + tcp_checksum_step1[19:16];
+
+    tcp_checksum = ~tcp_checksum_step2;
+end
+
 
 always_ff @(posedge clk or negedge rst_n) begin
     if(rst_n == 0)begin
@@ -274,7 +402,10 @@ always_ff @(posedge clk or negedge rst_n) begin
         tx_packet_sta <= 0;
     end else begin
         tx_ack <= 1'b0;
-        if(tx_net_ready)tx_net_valid <= 1'b0;
+        if(tx_net_ready)begin
+            tx_net_valid <= 1'b0;
+            tx_net_fin <= 1'b0;
+        end
 
         if(!tx_net_valid || tx_net_ready)begin
             case(tx_packet_sta)
@@ -296,6 +427,10 @@ always_ff @(posedge clk or negedge rst_n) begin
                 tx_packet_sta <= 2;
             end
             2:begin
+                //multiple clock path, 2 x clk
+                local_tcp_head_checksum <= tcp_head_checksum;
+                local_tcp_checksum <= tcp_checksum;
+
                 tx_net_valid <= 1;
                 /*
                     when no payload, total length is 40
@@ -307,7 +442,7 @@ always_ff @(posedge clk or negedge rst_n) begin
             end
             3:begin
                 tx_net_valid <= 1;
-                tx_net_data <= {tcp_head_checksum, ip[31:0], remote_ip[31:16]};
+                tx_net_data <= {local_tcp_head_checksum, ip[31:0], remote_ip[31:16]};
                 tx_packet_sta <= 4;
             end
             4:begin
@@ -334,14 +469,14 @@ always_ff @(posedge clk or negedge rst_n) begin
                     when rx is disabled, the received message will be discarded
                 */
 
-                //TBD checksum
                 //TBD XX 2BYTE
-                tx_net_data <= {16'h0200, 16'h0000, 16'h0000, 16'h0000};
+                tx_net_data <= {16'h0200, local_tcp_checksum, 16'h0000, 16'h0000};
 
                 if(tx_packet_local_tx_payload_size != 0)begin
                     tx_packet_sta <= 7;
                 end else begin
                     tx_packet_sta <= 0;
+                    tx_net_fin <= 1;
                 end
             end
             endcase
@@ -349,6 +484,5 @@ always_ff @(posedge clk or negedge rst_n) begin
         
     end
 end
-
 
 endmodule

@@ -88,32 +88,54 @@ initial begin
 
     #5 rst_n = 1'b1;
     #5;
-    forever #10 clk = ~clk;
+    forever #2 clk = ~clk;
 end
 
 initial begin
+    tx_valid = 1'b0;
+    tx_data = 64'h0000000000000000;
+    tx_cnt = 3'd0;
+
+    #4;
+    force mac_inst.phy_config.phy_ready = 1'b1;
+
+    #80;
+    force tcp_inst.con_ready = 1'b1;
+
+    
+    #12;
+    tx_valid = 1'b1;
+    tx_data = 64'h1122334455667788;
+    tx_cnt = 3'd7;
     #20;
-    phy_ready = 1'b1;
+    tx_data = 64'h6677880000000000;
+    tx_cnt = 3'd2;
+    #4;
+    tx_data = 64'h6677880000000000;
+    tx_cnt = 3'd7;
+    #4;
+    tx_valid = 1'b0;
+    
 end
 
 initial begin
-    tx_net_ready = 1'b1;
 
-    tcp_inst.sequence_number = 32'd0;
-    tcp_inst.acknowledgement_number = 32'd0;
-    tcp_inst.ipv4_identification = 16'd0;
+    tcp_inst.tcp_packet_generator.sequence_number = 32'd0;
+    tcp_inst.tcp_packet_generator.acknowledgement_number = 32'd0;
+    tcp_inst.tcp_packet_generator.ipv4_identification = 16'd0;
 end
 
 tcp #(
     //.ip(32'hC0A802F0),
     //.remote_ip(32'hC0A802F1),
     .mac(48'h0600AABBCCDD),
-    .remote_mac(48'h0600AABBCCDE)
+    .remote_mac(48'h0600AABBCCDE),
     //.port(16'h3039),
     //.remote_port(16'h5B40),
     //.resend_interval(32'h3B9ACA00),
     //.recon_interval(32'h5F5E100),
-    //.tx_buf_size(32'h4000),
+    .tx_buf_size(32'd1024),
+    .frame_buf_size(32'd16)
     //.HB(1),
     //.HB_interval(32'h5F5E100),
     //.jumbo(0),
@@ -144,6 +166,49 @@ tcp #(
     .rx_net_fin(rx_net_fin)
 );
 
+interface rmii(
+    input clk50m, rx_crs,
+    output mdc, txen,
+    inout mdio,
+    output [1:0] txd,
+    input [1:0] rxd
+);
+endinterface //rmii
+
+logic clk50m;
+logic rx_crs;
+logic mdc;
+logic txen;
+logic mdio;
+logic [1:0] txd;
+logic [1:0] rxd;
+
+rmii rmii_local (
+    .clk50m(clk50m), 
+    .rx_crs(rx_crs),
+    .mdc(mdc), 
+    .txen(txen), 
+    .txd(txd), 
+    .rxd(rxd)
+);
+
+
+mac mac_inst(
+    .clk(clk),
+    .rst_n(rst_n),
+    .tx_net_data(tx_net_data),
+    .tx_net_valid(tx_net_valid),
+    .tx_net_ready(tx_net_ready),
+    .tx_net_cnt(tx_net_cnt),
+    .tx_net_fin(tx_net_fin),
+    .rx_net_data(rx_net_data),
+    .rx_net_valid(rx_net_valid),
+    .rx_net_ready(rx_net_ready),
+    .rx_net_cnt(rx_net_cnt),
+    .rx_net_fin(rx_net_fin),
+    .phy_ready(phy_ready),
+    .netrmii(rmii_local)
+);
 
 
 endmodule

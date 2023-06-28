@@ -86,23 +86,23 @@ in rst_n
 in phy_ready
 out con_ready
 
-in tx_data 64bits left aligned
+in tx_data 64bits left aligned, not used bytes must be 0
 in tx_valid 
 in tx_cnt 3bits 0 = 1byte, 7 = 8bytes
 out tx_ready
 
-out rx_data 64bits left aligned
+out rx_data 64bits left aligned, not used bytes are 0
 out rx_valid
 out rx_cnt 3bits 0 = 1byte, 7 = 8bytes
 in rx_ready
 
-out tx_net_data 64bits left aligned
+out tx_net_data 64bits left aligned, not used bytes are 0
 out tx_net_valid
 out tx_net_cnt 3bits 0 = 1byte, 7 = 8bytes
 in tx_net_ready
 out tx_net_fin
 
-in rx_net_data 64bits left aligned
+in rx_net_data 64bits left aligned, not used bytes must be 0
 in rx_net_valid
 in rx_net_cnt 3bits 0 = 1byte, 7 = 8bytes
 out rx_net_ready
@@ -112,4 +112,5 @@ in rx_net_fin
 ## Notes
 
 - tx_data less than 8byte will cut the frame into two
+- tx_data longer than 1448byte (8960 in jumbo mode) will be cut into a new frame
   
