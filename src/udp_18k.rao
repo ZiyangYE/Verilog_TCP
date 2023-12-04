@@ -1,0 +1,134 @@
+<?xml version="1" encoding="UTF-8"?>
+<GAO_CONFIG>
+    <Version>3.0</Version>
+    <Mode>Standard</Mode>
+    <AoCore index="0" sample_clock="netrmii.clk50m" trig_type="0" storage_depth="8192" window_num="1" capture_amount="8192" trigger_pos="16" module_name="top" force_trigger_by_falling_edge="false">
+        <SignalList>
+            <Signal>nett_inst/arp_data_en</Signal>
+            <Bus name="nett_inst/arp_data_out[7:0]">
+                <Signal>nett_inst/arp_data_out[7]</Signal>
+                <Signal>nett_inst/arp_data_out[6]</Signal>
+                <Signal>nett_inst/arp_data_out[5]</Signal>
+                <Signal>nett_inst/arp_data_out[4]</Signal>
+                <Signal>nett_inst/arp_data_out[3]</Signal>
+                <Signal>nett_inst/arp_data_out[2]</Signal>
+                <Signal>nett_inst/arp_data_out[1]</Signal>
+                <Signal>nett_inst/arp_data_out[0]</Signal>
+            </Bus>
+            <Signal>nett_inst/arp_fin</Signal>
+            <Bus name="nett_inst/txs_data_out[7:0]">
+                <Signal>nett_inst/txs_data_out[7]</Signal>
+                <Signal>nett_inst/txs_data_out[6]</Signal>
+                <Signal>nett_inst/txs_data_out[5]</Signal>
+                <Signal>nett_inst/txs_data_out[4]</Signal>
+                <Signal>nett_inst/txs_data_out[3]</Signal>
+                <Signal>nett_inst/txs_data_out[2]</Signal>
+                <Signal>nett_inst/txs_data_out[1]</Signal>
+                <Signal>nett_inst/txs_data_out[0]</Signal>
+            </Bus>
+            <Signal>nett_inst/txs_fin</Signal>
+            <Signal>nett_inst/txs_data_en</Signal>
+            <Bus name="nett_inst/tx_data_out[7:0]">
+                <Signal>nett_inst/tx_data_out[7]</Signal>
+                <Signal>nett_inst/tx_data_out[6]</Signal>
+                <Signal>nett_inst/tx_data_out[5]</Signal>
+                <Signal>nett_inst/tx_data_out[4]</Signal>
+                <Signal>nett_inst/tx_data_out[3]</Signal>
+                <Signal>nett_inst/tx_data_out[2]</Signal>
+                <Signal>nett_inst/tx_data_out[1]</Signal>
+                <Signal>nett_inst/tx_data_out[0]</Signal>
+            </Bus>
+            <Signal>nett_inst/tx_start</Signal>
+            <Signal>nett_inst/tx_data_en</Signal>
+            <Signal>trg</Signal>
+            <Bus name="nett_inst/arps/arp_rom_pointer[7:0]">
+                <Signal>nett_inst/arps/arp_rom_pointer[7]</Signal>
+                <Signal>nett_inst/arps/arp_rom_pointer[6]</Signal>
+                <Signal>nett_inst/arps/arp_rom_pointer[5]</Signal>
+                <Signal>nett_inst/arps/arp_rom_pointer[4]</Signal>
+                <Signal>nett_inst/arps/arp_rom_pointer[3]</Signal>
+                <Signal>nett_inst/arps/arp_rom_pointer[2]</Signal>
+                <Signal>nett_inst/arps/arp_rom_pointer[1]</Signal>
+                <Signal>nett_inst/arps/arp_rom_pointer[0]</Signal>
+            </Bus>
+            <Bus name="nett_inst/arps/data_out_reg[7:0]">
+                <Signal>nett_inst/arps/data_out_reg[7]</Signal>
+                <Signal>nett_inst/arps/data_out_reg[6]</Signal>
+                <Signal>nett_inst/arps/data_out_reg[5]</Signal>
+                <Signal>nett_inst/arps/data_out_reg[4]</Signal>
+                <Signal>nett_inst/arps/data_out_reg[3]</Signal>
+                <Signal>nett_inst/arps/data_out_reg[2]</Signal>
+                <Signal>nett_inst/arps/data_out_reg[1]</Signal>
+                <Signal>nett_inst/arps/data_out_reg[0]</Signal>
+            </Bus>
+            <Signal>nett_inst/arp_start</Signal>
+            <Signal>nett_inst/arps/start</Signal>
+            <Signal>nett_inst/arps/data_en</Signal>
+            <Signal>nett_inst/arps/data_av</Signal>
+            <Signal>nett_inst/arps/fin</Signal>
+            <Signal>nett_inst/arps/send_en</Signal>
+            <Signal>nett_inst/arps/data_en_reg</Signal>
+            <Signal>nett_inst/arps/fin_reg</Signal>
+            <Signal>nett_inst/arps/clr</Signal>
+            <Bus name="nett_inst/status[7:0]">
+                <Signal>nett_inst/status[7]</Signal>
+                <Signal>nett_inst/status[6]</Signal>
+                <Signal>nett_inst/status[5]</Signal>
+                <Signal>nett_inst/status[4]</Signal>
+                <Signal>nett_inst/status[3]</Signal>
+                <Signal>nett_inst/status[2]</Signal>
+                <Signal>nett_inst/status[1]</Signal>
+                <Signal>nett_inst/status[0]</Signal>
+            </Bus>
+            <Bus name="netrmii.txd[1:0]">
+                <Signal>netrmii.txd[1]</Signal>
+                <Signal>netrmii.txd[0]</Signal>
+            </Bus>
+            <Signal>netrmii.txen</Signal>
+        </SignalList>
+        <Triggers>
+            <Trigger index="0">
+                <SignalList>
+                    <Signal>trg</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="1"/>
+            <Trigger index="2"/>
+            <Trigger index="3"/>
+            <Trigger index="4"/>
+            <Trigger index="5"/>
+            <Trigger index="6"/>
+            <Trigger index="7"/>
+            <Trigger index="8"/>
+            <Trigger index="9"/>
+            <Trigger index="10"/>
+            <Trigger index="11"/>
+            <Trigger index="12"/>
+            <Trigger index="13"/>
+            <Trigger index="14"/>
+            <Trigger index="15"/>
+        </Triggers>
+        <MatchUnits>
+            <MatchUnit index="0" enabled="1" match_type="1" counter_enable="0" counter_width="3" counter="8" countinuous="0" func="0" value0="R" value1="0" trigger="0"/>
+            <MatchUnit index="1" enabled="0" match_type="1" counter_enable="1" counter_width="3" counter="6" countinuous="1" func="0" value0="1" value1="0" trigger="1"/>
+            <MatchUnit index="2" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="3" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="4" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="5" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="6" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="7" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="8" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="9" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="10" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="11" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="12" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="13" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="14" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="15" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+        </MatchUnits>
+        <Expressions type="Static">
+            <Expression>M0</Expression>
+        </Expressions>
+    </AoCore>
+    <GAO_ID>0101100011010101</GAO_ID>
+</GAO_CONFIG>

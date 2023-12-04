@@ -1,2 +1,0 @@
-define worklib /mnt/rose/usr1/ye_zy/verilog/Verilog_TCP/nc/INCA_libs/worklib
-include $CDS_INST_DIR/tools/inca/files/cds.lib
